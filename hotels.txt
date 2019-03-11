@@ -1,0 +1,18 @@
+h1=Hotel(name='Asteras',email='contact@asterasvouliagmenis.gr',available_rooms=10,pernightcost=700, country='Greece',city='Vouliagmeni',website="https://asterasvouliagmenis.gr",stars=5)
+h2=Hotel(name='Electra Palace',email='contact@electrapalace.gr',available_rooms=20,pernightcost=300, country='Greece',city='Thessaloniki',website="https://electrapalace.gr",stars=5)
+h3=Hotel(name='Great Britania',email='contact@greatbritania.gr',available_rooms=5,pernightcost=500,country='Greece',city='Athens',website="https://greatbritania.gr",stars=5)
+h4=Hotel(name='Hilton',email='contact@hilton.gr',available_rooms=4,pernightcost=300,country='Greece',city='Athens',website="https://hilton.gr",stars=5)
+h5=Hotel(name='Makedonia Palace',email='contact@makedoniapalace.gr',available_rooms=20,pernightcost=200,country='Greece',city='Thessaloniki',website="https://makedoniapalace.gr",stars=5)
+
+h1.save()
+h2.save()
+h3.save()
+h4.save()
+h5.save()
+
+
+#####
+admins=jsonload_('admins.json')
+
+for andmin in admins:
+	Admin(**andmin).save()

@@ -1,0 +1,10 @@
+Customer.objects(__raw__={'address': {"$exists" :False}}).update(__raw__={"$set": {'address': None}})
+#updates only documents that miss the address field
+
+Customer.objects.update(__raw__={"$pull":{"anarray":{"$in":[1,2]}, "secondarray":1}})
+#pulls values 1 and 2 from anarray and 1 from secondarray
+
+
+Customer.objects(__raw__={"address":{"$exists":"true"},"address":None}).update(__raw__={"$set":{"address":"Unknown"}})
+
+Admin.objects(__raw__={"hotelslist.note":"N//A"}).update(__raw__={"$set": {"hotelslist.$.note":"N/A"}})
