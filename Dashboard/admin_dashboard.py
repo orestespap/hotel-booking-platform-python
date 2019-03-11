@@ -74,7 +74,7 @@ def edit_shady_hotels(anadmin):
 		while True:
 			ans=int(input(menu+'\nChoice: '))
 			if ans not in range(1,len(func_dict)+2):
-				ans=int(input(f'Please type in a number from 1 to 6\n{menu}'))
+				ans=int(input(f'Please type in a number from 1 to 6\n{menu}!'))
 			else:
 				if ans==len(func_dict)+1:
 					return
