@@ -1,4 +1,4 @@
-import mongoengine as me
+import mongoengine as m
 
 from Homepage.access_type import select_account_type
 #from Classes.customer import Customer
@@ -8,7 +8,11 @@ from Homepage.access_type import select_account_type
 #from mongoengine.queryset.visitor import Q
 
 def set_up_mongo():
-	me.register_connection(alias='xyz', name='hotels')
+	m.register_connection(alias='xyz', name='hotels')
+
+def close_connection():
+	m.disconnect(alias='xyz', name='hotels')
 
 set_up_mongo()
 select_account_type()
+close_connection()

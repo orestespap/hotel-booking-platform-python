@@ -1,3 +1,8 @@
-x='02/07/2012'
+import numpy as np
+x=[1,2,3,4,5]
 
-print(int(x.split('/')[0]))
+print(np.std(x,dtype=np.float64))
+
+def get_stuff():
+	return 1,2
+print(f'Something: {get_stuff()}')
