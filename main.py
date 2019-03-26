@@ -10,9 +10,5 @@ from Homepage.access_type import select_account_type
 def set_up_mongo():
 	m.register_connection(alias='xyz', name='hotels')
 
-def close_connection():
-	m.disconnect(alias='xyz', name='hotels')
-
 set_up_mongo()
 select_account_type()
-close_connection()

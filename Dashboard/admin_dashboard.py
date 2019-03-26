@@ -7,15 +7,16 @@ from mongoengine.queryset.visitor import Q
 
 
 def welcome_screen(anadmin):
-	func_dict = {1:view_hotels,2:view_shady_users,3:edit_shady_hotels,4:None,5:None,6:None,7:filter_hotels,8:change_password,9:exit}
-	#4:edit_shady_customers,5:delete_hotel_sys,6:delete_customer_sys}
+	func_dict = {1:view_hotels,2:edit_shady_hotels,3:edit_shady_customers,4:None,5:None,6:filter_hotels,7:filter_customers,8:change_password,9:exit}
+	#4:delete_hotel_sys,5:delete_customer_sys}
 	
 	#func_dict: dictionary containing function objects listed in the main menu
 
 	#delete hotel and customer functions should be implemented in the update_db file
+	#Upcoming feature: Platform admin applications; create relevant embedded document
 
 	dashes='-'*5
-	menu=f'{dashes}MAIN MENU{dashes}\n1.)View hotels\n2.)View shady users\n3.)Edit shady hotels\n4.)Edit shady customers\n5.)Delete hotel from system\n6.)Delete customer\n7.)Filter hotels\n8.)Change your password\n9.)Exit\nChoice: '
+	menu=f'{dashes}MAIN MENU{dashes}\n1.)View hotels\n2.)Edit shady hotels\n3.)Edit shady customers\n4.)Delete hotel from system\n5.)Delete customer\n6.)Filter hotels\n7.)Filter customers\n8.)Change your password\n9.)Exit\nChoice: '
 
 	print(f"Welcome {anadmin.name} :)")
 	
@@ -24,7 +25,7 @@ def welcome_screen(anadmin):
 		while ans not in range(1,len(func_dict)+1):
 			ans=int(input(f'Please type in a number from 1 to 5\n{menu}'))
 		
-		#if ans==len(func_dict): func_dict[ans]() #exit()
+		if ans==len(func_dict): func_dict[ans]() #exit()
 		
 		func_dict[ans](anadmin)
 
@@ -33,10 +34,9 @@ def view_hotels(anadmin=None):
 		print(f'{index+1}.) {ahotel.name}')
 	#Need to insert view hotel information function and a functional selection menu
 
-def view_shady_users(anadmin):
-	for index,acustomer in enumerate(anadmin.customerslist):
-		print(f'{index+1}.) {Customer.objects(id=acustomer.customer).first().name}')
-	#Need to create and insert view customer information function and a functional selection menu
+def view_customers(anadmin=None):
+	for index,acustomer in enumerate(Customer.objects.only('username')):
+		print(f'{index+1}.) {acustomer.username}')
 
 def filter_hotels(anadmin):
 	dashes='-'*5
@@ -65,73 +65,39 @@ def filter_hotels(anadmin):
 				view_hotel_information(ahotel)
 
 
-def edit_shady_hotels(anadmin):
-	func_dict = {1:view_shady_hotels,2:add_shady_hotel,3:remove_shady_hotels,4:edit_note,5:edit_warning_level}
+
+def filter_customers(anadmin):
 	dashes='-'*5
-	menu=f'{dashes}SHADY HOTELS MENU{dashes}\n1.)View shady hotel information\n2.)Add shady hotel to list\n3.)Remove hotel from list\n4.)Edit note\n5.)Edit warning level\n6.)Return to main menu\nChoice: '
+	
+	specialtext={1:f"{dashes}BEST PAYING USERS{dashes}",2:f'{dashes}MALE USERS{dashes}',3:f'{dashes}FEMALE USERS{dashes}',4:f'{dashes}USERS WITH UNKNOWN ADDRESS{dashes}'}
+	func_dict={1:Customer.objects.best_paying,2:Customer.objects.is_male,3:Customer.objects.is_female,4:Customer.objects.unknown_address}
+	
+	menu=f'{dashes}HOTEL FILTERS MENU{dashes}\n1.)View best paying users\n2.)View male users\n3.)View female users\n4.)View users without address\n5.)Return to main menu'
 	
 	while True:
 		while True:
 			ans=int(input(menu+'\nChoice: '))
-			if ans not in range(1,len(func_dict)+2):
-				ans=int(input(f'Please type in a number from 1 to 6\n{menu}!'))
+			if ans not in range(1,len(specialtext)+2):
+				ans=int(input(f'Please type in a number from 1 to {len(specialtext)+1}\n{menu}'))
 			else:
-				if ans==len(func_dict)+1:
+				if ans==len(specialtext)+1:
 					return
-				break
-		func_dict[ans](anadmin)
+				break 
+		print(specialtext[ans])
+		users=func_dict[ans]()
+		
+		if not users:
+			print("None.")
+		else:	
+			for auser in users:
+				view_user_information(auser)
+
+
+#SHADY HOTELS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 def view_shady_hotels(anadmin):
 	for index,ashadyhotel in enumerate(anadmin.hotelslist):
 		print(f'{index+1}.) {Hotel.objects(id=ashadyhotel.hotel).first().name}')
-
-def edit_note(anadmin):
-	while True:
-		while True:
-			view_shady_hotels(anadmin)
-			print(f'{len(anadmin.hotelslist)+1}.)Back to main menu')
-
-			ans=int(input('Choice: '))
-			
-			if ans in range(1,len(anadmin.hotelslist)+2):
-				if ans==len(anadmin.hotelslist)+1:
-					return
-				break
-			print(f'Please type in an integere from 1 to {index+1}')
-		ahotel=tuple(ahotel for index,ahotel in enumerate(anadmin.hotelslist) if index+1==ans)[0]
-		print(f'Current note\n{ahotel.note}')
-		ans=input('Please type in new note:\n')
-		
-		while not ans:
-			ans=input('Note cannot be empyt: \n')
-			if ans: break
-		
-		update_db_edit_note(anadmin,ahotel,ans)
-		print(f'Note for {Hotel.objects(id=ahotel.hotel).first().name} edited successfully!')
-
-def edit_warning_level(anadmin):
-	while True:
-		while True:
-			view_shady_hotels(anadmin)
-			print(f'{len(anadmin.hotelslist)+1}.)Back to main menu')
-
-			ans=int(input('Choice: '))
-			
-			if ans in range(1,len(anadmin.hotelslist)+2):
-				if ans==len(anadmin.hotelslist)+1:
-					return
-				break
-			print(f'Please type in an integere from 1 to {index+1}')
-		ahotel=tuple(ahotel for index,ahotel in enumerate(anadmin.hotelslist) if index+1==ans)[0]
-		print(f'Current warning level: {ahotel.warning_level}')
-		ans=int(input(f'New warning level ({warning_options[0]}-{warning_options[-1]}):\n'))
-		
-		while ans not in warning_options:
-			ans=input(f'Warning level must be an integer from {warning_options[0]} to {warning_options[-1]}: \n')
-			if ans: break
-		
-		update_db_edit_warning_level(anadmin,ahotel,ans)
-		print(f'{Hotel.objects(id=ahotel.hotel).first().name} hotel\'s warning level edited successfully!')
 
 
 def add_shady_hotel(anadmin):
@@ -153,6 +119,25 @@ def add_shady_hotel(anadmin):
 			break
 		print(f'{ahotel.name} hotel is already in your list of shady hotels.')
 
+def edit_shady_hotels(anadmin):
+	func_dict = {1:view_shady_hotels,2:add_shady_hotel,3:remove_shady_hotels,4:edit_note,5:edit_warning_level}
+	dashes='-'*5
+	menu=f'{dashes}SHADY HOTELS MENU{dashes}\n1.)View shady hotel information\n2.)Add shady hotel to list\n3.)Remove hotel from list\n4.)Edit note\n5.)Edit warning level\n6.)Return to main menu\nChoice: '
+	
+	while True:
+		while True:
+			ans=int(input(menu+'\nChoice: '))
+			if ans not in range(1,len(func_dict)+2):
+				ans=int(input(f'Please type in a number from 1 to 6\n{menu}!'))
+			else:
+				if ans==len(func_dict)+1:
+					return
+				break
+		if ans==4 or ans==5:
+			func_dict[ans](anadmin,'h')
+		else:	
+			func_dict[ans](anadmin)
+
 
 def remove_shady_hotels(anadmin):
 	while True:
@@ -173,6 +158,168 @@ def remove_shady_hotels(anadmin):
 		print(f'{Hotel.objects(id=ahotel.hotel).first().name} successfully removed from shady hotels list!')
 
 
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#SHADY USERS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+def edit_shady_customers(anadmin):
+	
+	func_dict = {1:view_shady_customers,2:add_shady_user,3:remove_shady_users,4:edit_note,5:edit_warning_level}
+	dashes='-'*5
+	menu=f'{dashes}SHADY CUSTOMERS MENU{dashes}\n1.)View shady customers\' information\n2.)Add shady customer to list\n3.)Remove customer from list\n4.)Edit note\n5.)Edit warning level\n6.)Return to main menu\nChoice: '
+	
+	while True:
+		while True:
+			ans=int(input(menu+'\nChoice: '))
+			if ans not in range(1,len(func_dict)+2):
+				ans=int(input(f'Please type in a number from 1 to 6\n{menu}!'))
+			else:
+				if ans==len(func_dict)+1:
+					return
+				break
+		if ans==4 or ans==5:
+			func_dict[ans](anadmin,'c')
+		else:
+			func_dict[ans](anadmin)
+
+
+def view_shady_customers(anadmin):
+	if not anadmin.customerslist:
+		print('List empty.')
+		return
+	
+	for index,acustomer in enumerate(anadmin.customerslist):
+		print(f'{index+1}.) @{Customer.objects(id=acustomer.customerid).first().username}')
+
+
+def add_shady_user(anadmin):
+	#add return to sahdy menu option
+	while True:
+		while True:
+			view_customers()
+			ans=int(input('Select a user:\n'))
+			if ans in range(1,len(Customer.objects)+1):
+				break
+			print(f'Please type in an integere from 1 to {len(Customer.objects)}')
+
+		acustomer=tuple(acustomer for index,acustomer in enumerate(Customer.objects) if index+1==ans)[0]
+		
+		if not Admin.objects(Q(id=anadmin.id) & Q(customerslist__customerid=acustomer.id)):
+			specialcustomer=SpecialCustomer(customerid=acustomer.id)
+			update_db_add_shady_customer(anadmin,specialcustomer)
+			print(f'User @{acustomer.username} added to list of shady customers successfully!')
+			break
+		print(f'User @{acustomer.username} is already in your list of shady customers.')
+
+
+def remove_shady_users(anadmin):
+	if not anadmin.customerslist:
+		print('List empty.')
+		return
+	while True:
+		while True:
+			view_shady_customers(anadmin)
+			print(f'{len(anadmin.customerslist)+1}.) Back to main menu')
+
+			ans=int(input('Select user: '))
+			
+			if ans in range(1,len(anadmin.customerslist)+2):
+				if ans==len(anadmin.customerslist)+1:
+					return
+				break
+			print(f'Please type in an integere from 1 to {index+1}')
+	
+		acustomer=tuple(acustomer for index,acustomer in enumerate(anadmin.customerslist) if index+1==ans)[0]
+		update_db_remove_shady_customer(anadmin,acustomer)
+		print(f'@{Customer.objects(id=acustomer.customerid).first().username} successfully removed from shady customers list!')
+
+
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#Edit note and warning level functions, abstracted in order cover both both special_hotel and special_customer
+
+
+
+def edit_note(anadmin,key):
+	option={'c':{'admin_struct':anadmin.customerslist},'h':{'admin_struct':anadmin.hotelslist}}
+
+	shadyobject=option[key]
+	while True:
+		while True:
+			view_shady_objects(anadmin,key)
+			print(f'{len(shadyobject["admin_struct"])+1}.)Back to main menu')
+
+			ans=int(input('Choice: '))
+			
+			if ans in range(1,len(shadyobject['admin_struct'])+2):
+				if ans==len(shadyobject['admin_struct'])+1:
+					return
+				break
+			print(f'Please type in an integere from 1 to {index+1}')
+		
+		ashadyobject=tuple(ashadyobject for index,ashadyobject in enumerate(shadyobject['admin_struct']) if index+1==ans)[0]
+		print(f'Current note\n{ashadyobject.note}')
+		ans=input('Please type in new note:\n')
+		
+		while not ans:
+			ans=input('Note cannot be empyt: \n')
+			if ans: break
+		
+		update_db_edit_note(anadmin,ashadyobject,ans,key)
+		print_success(ashadyobject,key,'note')
+
+def edit_warning_level(anadmin,key):
+	option={'c':{'admin_struct':anadmin.customerslist},'h':{'admin_struct':anadmin.hotelslist}}
+
+	shadyobject=option[key]
+
+	while True:
+		while True:
+			view_shady_objects(anadmin,key)
+			print(f'{len(shadyobject["admin_struct"])+1}.)Back to main menu')
+
+			ans=int(input('Choice: '))
+			
+			if ans in range(1,len(shadyobject['admin_struct'])+2):
+				if ans==len(shadyobject['admin_struct'])+1:
+					return
+				break
+			print(f'Please type in an integere from 1 to {index+1}')
+		ashadyobject=tuple(ashadyobject for index,ashadyobject in enumerate(shadyobject['admin_struct']) if index+1==ans)[0]
+		print(f'Current warning level: {ashadyobject.warning_level}')
+		ans=int(input(f'New warning level ({warning_options[0]}-{warning_options[-1]}):\n'))
+		
+		while ans not in warning_options:
+			ans=input(f'Warning level must be an integer from {warning_options[0]} to {warning_options[-1]}: \n')
+			if ans: break
+		
+		update_db_edit_warning_level(anadmin,ashadyobject,ans,key)
+		print_success(ashadyobject,key,'wl')
+
+def print_success(ashadyobject,key,from_):
+	if from_=='wl':
+		if key=='h':
+			print(f'{Hotel.objects(id=ashadyobject.hotel).first().name} hotel\'s warning level edited successfully!')
+		else:
+			print(f'{Customer.objects(id=ashadyobject.customerid).first().name} user\'s warning level edited successfully!')
+	else:
+		if key=='h':
+			print(f'Note for {Hotel.objects(id=ashadyobject.hotel).first().name} edited successfully!')
+		else:
+			print(f'Note for {Customer.objects(id=ashadyobject.customerid).first().name} edited successfully!')
+
+
+
+def view_shady_objects(anadmin,key):
+	if key=='h':
+		view_shady_hotels(anadmin)
+	else:
+		view_shady_customers(anadmin)
+
+
+
+
+
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 def change_password(anadmin):
 	password=input('Please type in your current password: ')
 	while password!=anadmin.password:
@@ -197,3 +344,11 @@ def view_hotel_information(ahotel):
 	Stars: {ahotel.stars}/5\n
 	Available rooms: {ahotel.available_rooms}\n
 	Cost per night: {ahotel.pernightcost}''')
+
+def view_user_information(auser):
+	print(f'''--{auser.name} information--\n
+	Username: {auser.username}\n
+	Email: {auser.email}\n
+	Location: {auser.address},{auser.city},{auser.country}\n
+	Gender: {auser.gender}\n
+	No of bookings: {len(auser.bookings)}\n''')

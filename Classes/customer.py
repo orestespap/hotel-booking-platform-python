@@ -1,6 +1,7 @@
 import mongoengine as m
 import datetime
 from Classes.booking import Booking
+from Custom_Query_Sets.customcustomersqs import CustomerQuerySet
 
 
 gender_options=['male','female','other']
@@ -16,6 +17,7 @@ class Customer(m.DynamicDocument):
 
 	wallet=m.FloatField(default=0)
 	country=m.StringField(default=None)
+	city=m.StringField(default=None)
 	address=m.StringField(default=None)
 
 
@@ -25,5 +27,6 @@ class Customer(m.DynamicDocument):
 
 	meta={
 		'db_alias':'xyz',
-		'collection':'customers'
+		'collection':'customers',
+		'queryset_class': CustomerQuerySet
 	}
