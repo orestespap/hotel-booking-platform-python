@@ -1,0 +1,1 @@
+modify embedded document in list: https://stackoverflow.com/questions/12387478/updating-a-list-of-embedded-documents-in-mongoengine

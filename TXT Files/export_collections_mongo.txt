@@ -1,0 +1,3 @@
+mongoexport --db hotels --collection administrators --out admins.json --jsonArray
+mongoexport --db hotels --collection customers --out customers.json --jsonArray
+mongoexport --db hotels --collection hotels --out hotels.json --jsonArray
