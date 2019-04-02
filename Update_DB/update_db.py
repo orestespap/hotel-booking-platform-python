@@ -2,7 +2,7 @@ from Classes.hotel import *
 from Classes.customer import *
 from Classes.booking import *
 from Classes.admin import *
-
+from Classes.admin_note import AdminNote
 
 def update_db_complete_booking(acustomer,abooking,ahotel):
 	Customer.objects(id=acustomer.id).update_one(push__bookings=abooking)
@@ -67,3 +67,24 @@ def update_db_edit_warning_level(anadmin,ashadyobject,new_wl,key):
 
 	anadmin.save()
 	anadmin.reload()
+
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#application management
+def update_db_add_application(name,gender,email,username,password,country):
+	Admin.objects.update(push__applicationslist=AdminApplicant(name=name,gender=gender,email=email,username=username,password=password,country=country))
+
+def update_db_accept_application(an_applicant):
+	newadmin=Admin(name=an_applicant.name,gender=an_applicant.gender,email=an_applicant.email,username=an_applicant.username,password=an_applicant.password,country=an_applicant.country)
+	newadmin.save()
+	
+	print(f'Admin user {newadmin.username} added successfully!')
+	Admin.objects.update(pull__applicationslist=an_applicant) #removes application from all admin users
+
+def update_db_reject_application(an_applicant):
+	Admin.objects.update(pull__applicationslist=an_applicant)
+	print(f'Application #{an_applicant.oid} rejected successfully.')
+
+
+def update_db_add_application_note(newnote,adminid,applicant):
+	Admin.objects(applicationslist__oid=applicant.oid).update(push__applicationslist__S__noteslist=AdminNote(author_id=adminid,note=newnote))
+	print('Note added successfully.')

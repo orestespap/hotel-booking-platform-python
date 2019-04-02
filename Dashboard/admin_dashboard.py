@@ -7,7 +7,7 @@ from mongoengine.queryset.visitor import Q
 
 
 def welcome_screen(anadmin):
-	func_dict = {1:view_hotels,2:edit_shady_hotels,3:edit_shady_customers,4:None,5:None,6:filter_hotels,7:filter_customers,8:change_password,9:exit}
+	func_dict = {1:view_hotels,2:edit_shady_hotels,3:edit_shady_customers,4:None,5:None,6:filter_hotels,7:filter_customers,8:change_password,9:manage_applications,10:exit}
 	#4:delete_hotel_sys,5:delete_customer_sys}
 	
 	#func_dict: dictionary containing function objects listed in the main menu
@@ -16,7 +16,7 @@ def welcome_screen(anadmin):
 	#Upcoming feature: Platform admin applications; create relevant embedded document
 
 	dashes='-'*5
-	menu=f'{dashes}MAIN MENU{dashes}\n1.)View hotels\n2.)Edit shady hotels\n3.)Edit shady customers\n4.)Delete hotel from system\n5.)Delete customer\n6.)Filter hotels\n7.)Filter customers\n8.)Change your password\n9.)Exit\nChoice: '
+	menu=f'{dashes}MAIN MENU{dashes}\n1.)View hotels\n2.)Edit shady hotels\n3.)Edit shady customers\n4.)Delete hotel from system\n5.)Delete customer\n6.)Filter hotels\n7.)Filter customers\n8.)Change your password\n9.)Edit admin applications\n10.)Exit\nChoice: '
 
 	print(f"Welcome {anadmin.name} :)")
 	
@@ -315,10 +315,77 @@ def view_shady_objects(anadmin,key):
 	else:
 		view_shady_customers(anadmin)
 
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#applications manager
+def manage_applications(anadmin):
+	func_dict,dashes= {1:view_applications,2:edit_applications_main},'-'*5
+	menu=f'{dashes}ADMIN APPLICATIONS MENU{dashes}\n1.)View applications\n2.)Edit applications\n3.)Return to main menu'
+	
+	check_for_new_applications(anadmin)
+	while True:
+		while True:
+			ans=int(input(menu+'\nChoice: '))
+			if ans not in range(1,len(func_dict)+2):
+				ans=int(input(f'Please type in a number from 1 to {len(func_dict)+1}\n{menu}'))
+			else:
+				if ans==len(func_dict)+1:
+					return
+				break 
+		users=func_dict[ans](anadmin)
 
+def view_applications(anadmin):
+	for an_applicant in anadmin.applicationslist:
+		print(f'Name: {an_applicant.name}\nGender: {an_applicant.gender}\nEmail: {an_applicant.email}\nCountry: {an_applicant.country}\nRequested username: {an_applicant.username}\nSubmission id: {an_applicant.oid}\nSubmission date: {an_applicant.registered_date}\n')
 
+def view_application(an_applicant):
+	print(f'Name: {an_applicant.name}\nGender: {an_applicant.gender}\nEmail: {an_applicant.email}\nCountry: {an_applicant.country}\nRequested username: {an_applicant.username}\nSubmission id: {an_applicant.oid}\nSubmission date: {an_applicant.registered_date}\n')
+	#Note: {an_applicant.note}\n
 
+def view_applications_as_list(anadmin):
+	for index,an_applicant in enumerate(anadmin.applicationslist):
+		print(f'{index+1}.)Email: {an_applicant.email}, ID: {an_applicant.oid}')
+	print(f'{len(anadmin.applicationslist)+1}.)Cancel\n')
 
+def edit_applications_main(anadmin):
+	
+	while True:
+		view_applications_as_list(anadmin)
+		ans=int(input('Choice: '))
+		if ans not in range(1,len(anadmin.applicationslist)+2):
+			print(f'Please type in an integere from 1 to {anadmin.applicationslist+1}')
+		if ans==len(anadmin.applicationslist)+1:
+			return
+		else:
+			edit_application(anadmin,anadmin.applicationslist[ans-1],ans-1)
+
+def edit_application(anadmin,an_applicant,pos):
+	func_dict={1:update_db_accept_application,2:update_db_reject_application,3:edit_note}
+	view_application(an_applicant)
+
+	while True:
+		ans=int(input('1.)Accept application\n2.)Reject application\n3.)Edit note\n4.)Cancel\nChoice: '))
+		if ans not in range(1,len(func_dict)+2):
+			print(f'Please type in an integere from 1-{len(func_dict)+2}')
+		elif ans==len(func_dict)+1:
+			return
+		elif ans==len(func_dict):
+			func_dict[ans](anadmin.id,an_applicant) #pos
+		else:
+			break
+	func_dict[ans](an_applicant)
+
+def edit_note(adminid,an_applicant):
+	#just new note for now
+	#need to add view and edit notes written by admin
+
+	anote=input('New note:')
+	update_db_add_application_note(anote,adminid,an_applicant)
+
+def check_for_new_applications(anadmin):
+	noofnewappl=tuple(an_applicant.oid for an_applicant in anadmin.applicationslist if str(an_applicant.registered_date).split()[0]==str(datetime.datetime.today()).split()[0])
+	if noofnewappl:
+		print(f'---NOTIFICATION---\n{len(noofnewappl)} new admin application(s) submitted today!')
+	
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 def change_password(anadmin):
 	password=input('Please type in your current password: ')

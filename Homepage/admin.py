@@ -1,5 +1,6 @@
 from Classes.admin import *
 from Dashboard.admin_dashboard import *
+from Update_DB.update_db import * #welcome_screen
 
 
 def log_in():
@@ -7,6 +8,7 @@ def log_in():
     username = input('Username: ')
     flag = 1
 
+    #add while True
     for anadmin in Admin.objects:
         if username.lower() == anadmin.username.lower():
             password = input('Password: ')
@@ -30,14 +32,15 @@ def log_in():
 
 
 def sign_up():
-    name = input('Name: \n')
+    name = input('Name: ')
+    gender=gender_check()
     email = email_check()
-    password = input('Password: \n')
-    country=input('Country: \n')
+    username=username_check()
+    password = password_check()
+    country=input('Country: ')
     
-    anadmin = Admin(name=name, email=email, password=password, country=country, city=city, available_rooms=av_rooms,pernightcost=pernightcost)
-    anadmin.save()
-    print('Admin account for {anadmin.name} Admin created successfully!')
+    update_db_add_application(name,gender,email,username,password,country)
+    print(f'Your application for administrator account has been submitted successfully!\nYou\'ll be notified via email')
 
 
 def email_check():
@@ -45,10 +48,37 @@ def email_check():
     email = input("Email: ")
     while True:
         flag = 0
-        for smth in Admin.objects.only('email'):
-            if smth.email == email:
-                email, flag = input(f"{email} already in use. Try a different one: "), 1
-                break
+        if Admin.objects(email=email):
+            email, flag = input(f"{email} already in use. Try a different one: "), 1
+            break
         if not flag:
             break
     return email
+
+def username_check():
+    flag=1
+    username=input("Username: ")
+    while True:
+        flag=0
+        if Admin.objects(username=username):
+            username,flag=input(f"{username} already in use. Try a different one: "),1
+            break
+        if not flag:
+            break
+    return username
+
+def password_check():
+    password=input('Please type in your password: ')
+
+    password2=input('Retype your new password: ')
+    while password!=password2:
+        password2=input('Passwords must match!\nTry again: ')
+    return password
+
+def gender_check():
+    fixed='Select a gender:\nMale: 1\nFemale: 2\nOther: 3'
+    ans=int(input(f'{fixed}\nChoice: '))
+    while ans not in range(1,4):
+        ans=int(input(f'Please type in an integer from 1 to 3\n{fixed}\nChoice: '))
+   
+    return gender_options[ans-1]

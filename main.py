@@ -1,5 +1,5 @@
 import mongoengine as m
-
+import datetime
 from Homepage.access_type import select_account_type
 #from Classes.customer import Customer
 #from Classes.hotel import Hotel
@@ -12,3 +12,5 @@ def set_up_mongo():
 
 set_up_mongo()
 select_account_type()
+
+#must add close connection

@@ -2,6 +2,7 @@ import mongoengine as m
 import datetime
 from Classes.special_hotel import SpecialHotel
 from Classes.special_customer import SpecialCustomer
+from Classes.adminapplicant import AdminApplicant
 
 gender_options=['male','female','other']
 gender_dict={'male':'Mr.','female':'Mrs.','other':'X.'}
@@ -21,8 +22,10 @@ class Admin(m.DynamicDocument):
 	
 	hotelslist=m.EmbeddedDocumentListField(SpecialHotel)
 	customerslist=m.EmbeddedDocumentListField(SpecialCustomer)
+	applicationslist=m.EmbeddedDocumentListField(AdminApplicant)
 	
 	meta={
 		'db_alias':'xyz',
-		'collection':'administrators'
+		'collection':'administrators',
+		'indexes':['username','email']
 	}
