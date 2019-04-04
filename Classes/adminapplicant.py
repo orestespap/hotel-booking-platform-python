@@ -15,4 +15,4 @@ class AdminApplicant(m.EmbeddedDocument):
 	password=m.StringField(required=True)
 	
 	country=m.StringField(required=True)
-	noteslist=m.applicationslits=m.EmbeddedDocumentListField(AdminNote)
+	noteslist=m.EmbeddedDocumentListField(AdminNote)
